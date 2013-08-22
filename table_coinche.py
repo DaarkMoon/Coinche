@@ -22,16 +22,16 @@ class Table_coinche():
         if not (isinstance(teamA,Team) and isinstance(teamB, Team)):
             raise ValueError("Invalid team")
         self.deck = Deck()
-        deck.shuffle_deck()
+        self.deck.shuffle_deck()
         self.teams = [teamA, teamB]
-        self.players = [teams[team_index].players[plaer_index] for player_index in range(2) for team_index in range(2)]
+        self.players = [self.teams[team_index].players[player_index] for player_index in range(2) for team_index in range(2)]
     
     def play_round(self, trump, contract, team_playing):
         if isinstance(contract, int):
             round_points = contract*(2^(self.coinche))
         elif contract == "capot":
             round_points = 250
-        elif contract = "generale"
+        elif contract == "generale":
             round_points = 500
         contracted_team = self.teams.index(team_playing)
         table_round = Round(trump, contract, self.players, self.teams)
