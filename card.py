@@ -15,8 +15,6 @@ class Card():
     """
     
     def __init__(self, value, color):
-        assert isinstance(value,int), "value must be type of int."
-        assert isinstance(color,int), "color must be type of int."
         if value not in range(8):
             raise ValueError("value value must be between 0 and 7.")
         if color not in range(4):
@@ -25,6 +23,9 @@ class Card():
         self.color = color
     
     def __repr__(self):
+        return "card.Card(%s,%s)"%(self.value,self.color)
+    
+    def __str__(self):
         return "%s de %s"%(VALUE_LIST[self.value],COLOR_LIST[self.color])
         
     def __str__(self):
@@ -37,4 +38,5 @@ class Card():
     def __ne__(self, card_):
         assert isinstance(card_, Card), "card_ must be a type of Card class"
         return (self.color != card_.color) or (self.value != card_.value)
+    
     
