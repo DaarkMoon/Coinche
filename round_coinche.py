@@ -6,18 +6,19 @@ from global_values import *
 class Round_coinche():
     """
     Un round est une manche en 8 tour.
-    Un round possède tous les attributs et fonctions valables pendant un round.
+    Un round possÃ¨de tous les attributs et fonctions valables pendant un round.
     
     Attributs
-        trump       entier faisant référence à la couleur atout pour le round
+        trump       entier faisant rÃ©fÃ©rence Ã  la couleur atout pour le round
         contract    valeur du contrat, compris dans CONTRACT_VALUES
-        master      joueur maître et prochain joueur à joueur à jouer le pli
+        master      joueur maÃ®tre et prochain joueur Ã  joueur Ã  jouer le pli
         belotte     indicateur de belotte: 0 si pas de belotte, 0.5 si belotte ou rebelotte, 1 si belotte et rebelotte
         pli         pli en cours
     
     """
-    def __init__(self, trump, contract, players, teams):
-        
+    def __init__(self, trump, contract, players):
+        if (trump not in range(4)) or (contract not in CONTRACT_VALUES):
+            raise ValueError("invalid annouce for the round")
         self.trump = self.set_trump(trump)
         self.contract = contract
         self.master = players[0]
@@ -29,13 +30,13 @@ class Round_coinche():
         for i in range(4):
             j = (i+self.master)%4
             ## while 1:
-            ## demande à player[j] de jouer une carte "played_card"
+            ## demande Ã  player[j] de jouer une carte "played_card"
             ## -option belotte/rebelotte (self.belotte +=  0.5)
             ## if played_card in player[j].cardlist:
             ## self.pli.append(played_card)
             ## self.player.cardlist.remove(played_card)
             ## break
-        ## affichage mis à jour
+        ## affichage mis Ã  jour
     
     def strenght(self, card):
         if card.color == self.trump:
@@ -45,10 +46,9 @@ class Round_coinche():
     
     #trump is "atout" in French
     def set_trump(self, trump):
-        if trump not in COLOR_LIST:
-            raise ValueError("Trump must be in COLOR_LIST.")
-        else:
-            self.trump = COLOR_LIST.index(trump)
+        if trump not in range(4):
+            raise ValueError("Trump must be 0, 1, 2 or 3.")
+        self.trump = trump
     
     def master_card(self):
         master_card_index = 0
