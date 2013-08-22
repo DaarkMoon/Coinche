@@ -1,0 +1,76 @@
+\documentclass[11pt,oneside,a4paper]{article}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[frenchb]{babel}
+\usepackage{multirow}
+
+\begin{document}
+
+\part{Constante}
+\begin{verbatim}
+	VALUE_LIST = ("7","8","9","10","Valet","Dame","Roi","As") 
+	COLOR_LIST = ("carreau", "pique", "trefle", "coeur")
+	POINTS = (0,0,0,10,2,3,4,11)
+	POINTS_ATOUTS = (0,0,14,10,20,3,4,11)
+	VALID_DISTRIBUTION_SCHEMA = ( (3,3,2), (3,2,3), (2,3,3) )
+\end{verbatim}
+
+%------------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------------
+
+\part{Classes}
+
+\section{Card}
+Classe pour manipuler une carte.
+
+\subsection{Attributs}
+	\subsubsection{Value} Valeur de la carte représenté par un int dans l'intervale [0,7] mappé sur VALUE\_LIST
+	\subsubsection{Color}
+	Couleur de la carte représenté par un int dans l'intervale [0,3] mappé sur COLOR\_LIST
+
+\subsection{Méthodes}
+	
+%------------------------------------------------------------------------------------------------
+\section{Deck}
+Classe représentant le jeu par une liste de 32 objet de type \textit{Card}
+
+\subsection{Attributs}
+	\subsubsection{cardlist} Liste des cartes dans le deck
+	
+\subsection{Méthodes}
+	\subsubsection{deck.shuffle()} Mélange le jeux
+	\subsubsection{deck.cut(mode="Auto",coupe=16,err=3)}
+		Coupe le jeux suivant 3 méthodes
+		\begin{description}
+			\item[Auto :] le bot choisit
+			\item[Flou :] le joueur choisit et le bot ajoute un marge d'erreurs
+			\item[Fin  :] le joueur choisit précisement
+		\end{description}
+	\subsubsection{deck.distribute(schema=(3,2,3))}
+		Distribue les cartes suivant le schéma spécifié en retournant 4 objet de type \textit{Hand} représentant les 4 mains des joueurs. \`A la fin de la distribution le deck est vide. Les schémas valides sont spécifié dans la constante VALID\_DISTRIBUTION\_SCHEMA
+		
+%------------------------------------------------------------------------------------------------
+\section{Hand}
+\subsection{Attributs}
+	\subsubsection{cardlist} Liste des cartes dans une main
+\subsection{Méthodes}
+	\subsubsection{hand.play(index)} Retire la carte cardlist[index] de la main.
+%------------------------------------------------------------------------------------------------
+\section{}
+\subsection{Attributs}
+
+\subsection{Méthodes}
+
+%------------------------------------------------------------------------------------------------
+\section{}
+\subsection{Attributs}
+
+\subsection{Méthodes}
+
+%------------------------------------------------------------------------------------------------
+\section{}
+\subsection{Attributs}
+
+\subsection{Méthodes}
+\end{document}
