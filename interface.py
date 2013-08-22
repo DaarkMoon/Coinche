@@ -9,7 +9,6 @@ import pygame
 from pygame.locals import *
 from skin import *
 from locals import *
-import color # doit être importer après pygame
 
 class InterfaceError(Exception):
     def __init__(self,reason,detail=""):
