@@ -18,13 +18,13 @@ class Deck():
         #create all cards
         #loop in value with 0,1,...,7
     
-    def shuffle_deck(self):
+    def shuffle(self):
         """
         Mélange le jeu
         """
         random.shuffle(self.cardlist)
     
-    def cut_deck(self,mode="Auto",coupe=16,err=3):
+    def cut(self,mode="Auto",coupe=16,err=3):
         """
         Coupe le jeux suivant 3 méthodes
         - Auto : le bot choisit
@@ -45,7 +45,7 @@ class Deck():
             raise ValueError("two_cards value must be 1, 2 or 3.")
         
         scheme = [3,3,3]
-        distribution[two_cards-1] = 2
+        scheme[two_cards-1] = 2
         lots = [[] for i in range(4)]
 
         for card_number in scheme:
@@ -54,7 +54,7 @@ class Deck():
                 self.cardlist=self.cardlist[card_number:]
         return lots
     
-    def __repr__(self):
+    def __str__(self):
         s = ""
         for card in self.cardlist:
                 s += str(card) + "\n"
