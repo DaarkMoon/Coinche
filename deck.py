@@ -54,7 +54,7 @@ class Deck():
                 self.cardlist=self.cardlist[card_number:]
         return lots
     
-    def __repr__(self):
+    def __str__(self):
         s = ""
         for card in self.cardlist:
                 s += str(card) + "\n"

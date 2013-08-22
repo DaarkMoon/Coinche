@@ -26,6 +26,9 @@ class Card():
     
     def __repr__(self):
         return "%s de %s"%(VALUE_LIST[self.value],COLOR_LIST[self.color])
+        
+    def __str__(self):
+        return "%s\n%s"%(VALUE_LIST[self.value],COLOR_LIST[self.color])
     
     def __eq__(self, card_):
         assert isinstance(card_, Card), "card_ must be a type of Card class"
