@@ -61,8 +61,8 @@ class ThreadClient(threading.Thread):
             return "OK"
         elif command == "HELP":
             return "NO HELP WRITEN"
-        elif self.nick == None:
-            return "ERROR NO_NICK No Nick, No Command"
+        # elif self.nick == None:
+            # return "ERROR NO_NICK No Nick, No Command"
         elif command == "END":
             self.connection.close()      # couper la connection côté serveur
             del self.server.threads[self.ident]        # supprimer son entrée dans le dictionnaire 
