@@ -17,6 +17,7 @@ class InterfaceError(Exception):
 
     def __repr__(self):
         return self.reason + self.detail
+
         
 class GUI:
     """
@@ -61,14 +62,14 @@ class GUI:
         
     def send(self,data):
         try:
-            self.connection.send(data+'\r\n')
+            self.sock.send(data+'\r\n')
         except socket.error:
             print "Lost connection"
             sys.exit()
             
     def terminate(self):
+        self.send("END")
         self.sock.close()
-        self.UDPThread._Thread__stop()
         pygame.quit()
         sys.exit()
     
@@ -84,10 +85,11 @@ class GUI:
                         return True
             
             # Ajouter un rendu multiligne !
-            msg_rect = self.draw_message(msg,24,color.WHITE,self.display.get_rect().center)
+            msg_surf, msg_rect = self.prepare_message(msg,24,color.WHITE,self.display.get_rect().center)
             win_rect = msg_rect.inflate(5,5)
             pygame.draw.rect(self.display, color.BLACK, win_rect, 3)
             self.display.fill( color.RED, win_rect)
+            self.display.blit(msg_surf, msg_rect)
             pygame.display.update()
             self.FPSSyncro()
     
@@ -101,16 +103,20 @@ class GUI:
                         return False
                     elif event.key == K_RETURN:
                         return True
-            pass
     
-    def draw_message(self,msg,size,color,pos,align="center"):
+    def prepare_message(self,msg,size,color,pos,align="center"):
+        """prépare un message"""
         # ajouter vérif font size
         msg_surf = self.BASICFONT[size].render(msg, True, color)
         msg_rect = msg_surf.get_rect()
         setattr(msg_rect, align, pos)
+        return msg_surf, msg_rect
+    
+    def draw_message(self,msg,size,color,pos,align="center"):
+        """ prépare un message puis le blit imédiatement sur l'écran """
+        msg_surf, msg_rect = self.prepare_message(msg,size,color,pos,align)
         self.display.blit(msg_surf, msg_rect)
-        return msg_rect
-            
+        
     def quit(self):
         #ajouter écran de Fin
         while True:
@@ -138,9 +144,6 @@ class ThreadReception(threading.Thread):
             print message_recu
             if message_recu == "END":
                 break
-        # Le thread <réception> se termine ici. 
-        # On force la fermeture du thread <émission> : 
-        th_E._Thread__stop() 
         print "Client END. Connexion shutdown." 
         self.connection.close() 
 
@@ -155,15 +158,4 @@ class ThreadReception(threading.Thread):
             except socket.error:
                 print "Lost connection"
                 sys.exit()               
-        return buff[:-2]    #retunr msg Without '\r\n'        
-
-class ThreadEmission(threading.Thread): 
-    """objet thread gérant l'émission des messages""" 
-    def __init__(self, conn): 
-        threading.Thread.__init__(self) 
-        self.connection = conn           # réf. du socket de connection 
-
-    def run(self): 
-        while 1: 
-            message_emis = raw_input() 
-            self.connection.send(message_emis+"\r\n") 
+        return buff[:-2]    #retunr msg Without '\r\n'
