@@ -16,14 +16,35 @@ class Round_coinche():
         pli         pli en cours
     
     """
-    def __init__(self, trump, contract, players):
-        if (trump not in range(4)) or (contract not in CONTRACT_VALUES):
-            raise ValueError("invalid annouce for the round")
-        self.trump = self.set_trump(trump)
+    def __init__(self, trump, contract, players, contracted_team):
+        if (trump not in range(4)) or (contract not in CONTRACT_VALUES)
+            raise ValueError("invalid announce")
+        self.trump = trump
         self.contract = contract
+        self.contracted_team = contracted_team
         self.master = players[0]
         self.masters = []
         self.belotte = 0
+    
+    def play_round(self):
+        pli_contract = []
+        other_pli = []
+        for number_pli in range(8):
+            self.play_pli()
+            self.seek_master()
+            if self.players[self.master] in self.contracted_team:
+                pli_contract.extend(self.pli())
+            else:
+                other_pli.extend(self.pli())
+        
+        count = self.count_points(pli_contract)
+        return count, pli_contract + other_pli
+        
+    def count_points(self, cardlist):
+        count = 0
+        for card_index in cardlist:
+            count += self.card_point(card_index)
+        return count
     
     def play_pli(self):
         self.pli = []
@@ -43,12 +64,6 @@ class Round_coinche():
             return 12+POINTS_ATOUTS[card.value]
         else:
             return POINTS[card.value]
-    
-    #trump is "atout" in French
-    def set_trump(self, trump):
-        if trump not in range(4):
-            raise ValueError("Trump must be 0, 1, 2 or 3.")
-        self.trump = trump
     
     def master_card(self):
         master_card_index = 0
