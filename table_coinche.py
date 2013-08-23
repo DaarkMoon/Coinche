@@ -27,29 +27,16 @@ class Table_coinche():
         self.players = [self.teams[team_index].players[player_index] for player_index in range(2) for team_index in range(2)]
     
     def play_round(self, trump, contract, team_playing):
-        if (trump not in range(4)) or (contract not in CONTRACT_VALUES):
-            raise ValueError("invalid announce for the round")
-        elif isinstance(contract, int):
+        if isinstance(contract, int):
             round_points = contract*(2^(self.coinche))
         elif contract == "capot":
             round_points = 250
-        elif contract = "generale"
+        elif contract == "generale":
             round_points = 500
         contracted_team = self.teams.index(team_playing)
-        table_round = Round(trump, contract, self.players)
-        other_pli = []
-        count = 0
-        for number_pli in range(8):
-            table_round.play_pli()
-            table_round.seek_master()
-            if self.players[table_round.master] in self.contracted_team:
-                self.deck.add_cards(table_round.take_pli())
-            else:
-                other_pli.extend(table_round.pli())
+        table_round = Round(trump, contract, self.players, self.teams[contracted_team])
         
-        for card_index in self.deck.cardlist:
-            count += table_round.card_point(card_index)
-        self.deck.add_cards(other_pli)
+        [count, self.deck.cardlist] = table_round.play_round()
         
         if table_round.round_won(count):
             self.teams[contracted_teams].score += round_points
