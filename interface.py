@@ -56,7 +56,7 @@ class GUI:
             self.sock.connect(self.server)
             self.UDPThread = ThreadReception( self.sock )
         except socket.error: 
-            print "Connection failed. Exit ..." 
+            self.error_message("Connection to server failed.\nPress any key to exit ...") 
             sys.exit()
         print "Connection established." 
         self.UDPThread.start()
@@ -111,7 +111,7 @@ class GUI:
             tmp_surf = pygame.surface.Surface(self.disp_rect.size, pygame.SRCALPHA)
             for id,line in enumerate(msg.split('\n')):
                 surf, rect = self.prepare_message(line,size,color,pos,align)
-                rect.move_ip(0, size * (id + (id-1) * interline) )
+                rect.move_ip(0, size * (id + interline) )
                 tmp_surf.blit(surf,rect)
                 if msg_rect == None:
                     msg_rect = rect
@@ -139,10 +139,7 @@ class GUI:
                 if event.type == QUIT or event.type == KEYUP:
                     self.terminate()
             self.disp_surf.fill(BLACK)
-            x,y = self.disp_rect.center
-            self.draw_message("Code Client",32,RED, (x,y-36))
-            self.draw_message("by",16,RED, (x,y) )
-            self.draw_message("DaarkMoon (daarkmoon@mailoo.org)",24,RED, (x,y+36))
+            self.draw_message("Code Client\nby\nDaarkMoon (daarkmoon@mailoo.org)",24,RED, self.disp_rect.center)
             pygame.display.update()
             self.FPSSyncro()
 
