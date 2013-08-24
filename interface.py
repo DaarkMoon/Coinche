@@ -75,6 +75,12 @@ class GUI:
         sys.exit()
     
     def error_message(self,msg):
+        msg_surf, msg_rect = self.prepare_message(msg,24,BLACK,self.disp_rect.center)
+        win_rect = msg_rect.inflate(8,8)
+        pygame.draw.rect(self.disp_surf, DARKGREY, win_rect, 3)
+        self.disp_surf.fill( LIGHTGREY, win_rect)
+        self.disp_surf.blit(msg_surf, msg_rect)
+        pygame.display.update()
         while True:
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -84,12 +90,6 @@ class GUI:
                         return False
                     elif event.key == K_RETURN:
                         return True
-            msg_surf, msg_rect = self.prepare_message(msg,24,WHITE,self.display.get_rect().center)
-            win_rect = msg_rect.inflate(5,5)
-            pygame.draw.rect(self.display, BLACK, win_rect, 3)
-            self.display.fill( RED, win_rect)
-            self.display.blit(msg_surf, msg_rect)
-            pygame.display.update()
             self.FPSSyncro()
     
     def main_menu(self):
@@ -103,12 +103,28 @@ class GUI:
                     elif event.key == K_RETURN:
                         return True
     
-    def prepare_message(self,msg,size,color,pos,align="center"):
+    def prepare_message(self,msg,size,color,pos,align="center",interline=0.25):
         """prépare un message"""
         # ajouter vérif font size
-        msg_surf = self.BASICFONT[size].render(msg, True, color)
-        msg_rect = msg_surf.get_rect()
-        setattr(msg_rect, align, pos)
+        if '\n' in msg:
+            msg_rect = None
+            tmp_surf = pygame.surface.Surface(self.disp_rect.size, pygame.SRCALPHA)
+            for id,line in enumerate(msg.split('\n')):
+                surf, rect = self.prepare_message(line,size,color,pos,align)
+                rect.move_ip(0, size * (id + (id-1) * interline) )
+                tmp_surf.blit(surf,rect)
+                if msg_rect == None:
+                    msg_rect = rect
+                else:
+                    msg_rect.union_ip(rect)
+            msg_surf = pygame.surface.Surface(msg_rect.size, pygame.SRCALPHA)
+            msg_surf.blit(tmp_surf, (0,0), msg_rect)
+            setattr(msg_rect, align, pos)
+            
+        else:
+            msg_surf = self.BASICFONT[size].render(msg, True, color)
+            msg_rect = msg_surf.get_rect()
+            setattr(msg_rect, align, pos)
         return msg_surf, msg_rect
     
     def draw_message(self,msg,size,color,pos,align="center"):
