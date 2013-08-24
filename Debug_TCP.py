@@ -17,7 +17,7 @@ class ThreadReception(threading.Thread):
     def run(self): 
         while 1: 
             message_recu = self.connection.recv(1024) 
-            print message_recu
+            print message_recu[:-2]     #remove '\r\n' termining transmition
             if message_recu == "END":
                 break
         # Le thread <réception> se termine ici. 
@@ -35,7 +35,7 @@ class ThreadEmission(threading.Thread):
     def run(self): 
         while 1: 
             message_emis = raw_input() 
-            self.connection.send(message_emis+"\r\n") 
+            self.connection.send(message_emis+"\r\n")
 
 # Programme principal - Établissement de la connection : 
 connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
