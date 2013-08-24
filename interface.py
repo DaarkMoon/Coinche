@@ -28,7 +28,8 @@ class GUI:
         self.resolution = resolution
         self.res_width = resolution[0]
         self.res_height = resolution[1]
-        self.display = pygame.display.set_mode(resolution)
+        self.disp_surf = pygame.display.set_mode(resolution)
+        self.disp_rect = self.disp_surf.get_rect()
         
         pygame.display.set_caption('PyCoinche')
         skin = SkinPack('std')
@@ -83,8 +84,6 @@ class GUI:
                         return False
                     elif event.key == K_RETURN:
                         return True
-            
-            # Ajouter un rendu multiligne !
             msg_surf, msg_rect = self.prepare_message(msg,24,WHITE,self.display.get_rect().center)
             win_rect = msg_rect.inflate(5,5)
             pygame.draw.rect(self.display, BLACK, win_rect, 3)
@@ -115,7 +114,7 @@ class GUI:
     def draw_message(self,msg,size,color,pos,align="center"):
         """ prépare un message puis le blit imédiatement sur l'écran """
         msg_surf, msg_rect = self.prepare_message(msg,size,color,pos,align)
-        self.display.blit(msg_surf, msg_rect)
+        self.disp_surf.blit(msg_surf, msg_rect)
         
     def quit(self):
         #ajouter écran de Fin
@@ -123,8 +122,8 @@ class GUI:
             for event in pygame.event.get():
                 if event.type == QUIT or event.type == KEYUP:
                     self.terminate()
-            self.display.fill(BLACK)
-            x,y = self.display.get_rect().center
+            self.disp_surf.fill(BLACK)
+            x,y = self.disp_rect.center
             self.draw_message("Code Client",32,RED, (x,y-36))
             self.draw_message("by",16,RED, (x,y) )
             self.draw_message("DaarkMoon (daarkmoon@mailoo.org)",24,RED, (x,y+36))
