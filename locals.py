@@ -9,9 +9,8 @@ CARD_WIDTH = RES_HEIGHT/12
 CARD_HEIGHT = RES_HEIGHT/8
 CARD_SIZE = (CARD_WIDTH, CARD_HEIGHT)
 
-class color:
-    WHITE	= (255, 255, 255)
-    RED   	= (255,   0,   0)
-    GREEN	= (  0, 255,   0)
-    BLUE	= (  0,   0, 255)
-    BLACK	= (  0,   0,   0)
+WHITE	    = (255, 255, 255)
+RED   	    = (255,   0,   0)
+GREEN	    = (  0, 255,   0)
+BLUE	    = (  0,   0, 255)
+BLACK	    = (  0,   0,   0)

@@ -85,10 +85,10 @@ class GUI:
                         return True
             
             # Ajouter un rendu multiligne !
-            msg_surf, msg_rect = self.prepare_message(msg,24,color.WHITE,self.display.get_rect().center)
+            msg_surf, msg_rect = self.prepare_message(msg,24,WHITE,self.display.get_rect().center)
             win_rect = msg_rect.inflate(5,5)
-            pygame.draw.rect(self.display, color.BLACK, win_rect, 3)
-            self.display.fill( color.RED, win_rect)
+            pygame.draw.rect(self.display, BLACK, win_rect, 3)
+            self.display.fill( RED, win_rect)
             self.display.blit(msg_surf, msg_rect)
             pygame.display.update()
             self.FPSSyncro()
@@ -123,11 +123,11 @@ class GUI:
             for event in pygame.event.get():
                 if event.type == QUIT or event.type == KEYUP:
                     self.terminate()
-            self.display.fill(color.BLACK)
+            self.display.fill(BLACK)
             x,y = self.display.get_rect().center
-            self.draw_message("Code Client",32,color.RED, (x,y-36))
-            self.draw_message("by",16,color.RED, (x,y) )
-            self.draw_message("DaarkMoon (daarkmoon@mailoo.org)",24,color.RED, (x,y+36))
+            self.draw_message("Code Client",32,RED, (x,y-36))
+            self.draw_message("by",16,RED, (x,y) )
+            self.draw_message("DaarkMoon (daarkmoon@mailoo.org)",24,RED, (x,y+36))
             pygame.display.update()
             self.FPSSyncro()
 
