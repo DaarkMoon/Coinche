@@ -68,6 +68,18 @@ class GUI:
             print "Lost connection"
             sys.exit()
             
+    def set_nick(self,nick):
+        self.send("NICK %s"%nick)
+        while True:
+            for event in pygame.event.get():
+                print event
+                if event.type == USEREVENT:
+                    if event.dict['msg'] == "OK":
+                        return True
+                    else:
+                        return False
+            self.FPSSyncro()
+            
     def terminate(self):
         self.send("END")
         self.sock.close()
@@ -102,7 +114,17 @@ class GUI:
                         return False
                     elif event.key == K_RETURN:
                         return True
-    
+                elif event.type == USEREVENT:
+                    msg = event.dict['msg']
+                    if ' ' in msg:
+                        command,arg = msg.split(' ',1)
+                    else:
+                        command = msg
+                        arg = None
+                    if command == "ERROR":
+                        self.error_message(arg)
+            self.FPSSyncro()
+            
     def prepare_message(self,msg,size,color,pos,align="center",interline=0.25):
         """prépare un message"""
         # ajouter vérif font size
@@ -153,7 +175,7 @@ class ThreadReception(threading.Thread):
     def run(self): 
         while 1: 
             message_recu = self.recv() 
-            print message_recu
+            pygame.event.post(pygame.event.Event(USEREVENT,msg=message_recu))
             if message_recu == "END":
                 break
         print "Client END. Connexion shutdown." 
