@@ -7,6 +7,7 @@ import random
 import os
 import logging
 import logging.config
+import time
 
 SERVER_RECV_BUFFER = 512
 class ThreadClient(threading.Thread): 
@@ -27,7 +28,7 @@ class ThreadClient(threading.Thread):
         return "[%s:%s] <%s>"%(self.adresse[0], self.adresse[1],self.nick)
 
     def run(self):
-        self.logger.debug("Thread %s started.",self.ident)
+        self.logger.debug("ThreadClient %s started.",self.ident)
         while True:
             self.send(self.process(self.recv()))
         
@@ -75,9 +76,15 @@ class ThreadClient(threading.Thread):
             self.nick = arg
             return "OK"
         elif command == "HELP":
+            # faire un help file
             return "NO HELP WRITEN"
         # elif self.nick == None:
             # return "ERROR NO_NICK No Nick, No Command"
+        elif command == "CHAT":
+            for th in self.server.threads.values():
+                if th != self:
+                    th.send("<%s> %s"%(self.nick,arg))
+            return ""
         elif command == "END":
             self.send("END")
             self.connection.close()      # couper la connection côté serveur
@@ -95,8 +102,44 @@ class ThreadClient(threading.Thread):
             for th in self.server.threads.values():
                 s += "  "+ repr(th) + "\n"
             return s
+        elif command == "JOIN":
+            if arg not in self.server.rooms:
+                self.room = ThreadRoom(arg,self)
+                self.server.rooms[arg] = self.room
+                self.room.start()
+            else:
+                self.server.rooms[arg].players.append(self)
+            return "OK"
+        elif command == "QUIT":
+            if self.room == None:
+                return "ERROR You are not in any room"
+            else:
+                self.room.players.remove(self)
+                self.room = None
+                return "OK"
         else:
             return "ERROR UKW_CMD %s"%(command)
+        return "ERROR SERVER RETURN NOTHING"
+class ThreadRoom(threading.Thread): 
+    '''dérivation d'un objet thread pour gérer la connection avec un client''' 
+    def __init__(self, id, master): 
+        threading.Thread.__init__(self) 
+        self.server = master.server
+        self.id = id
+        self.master = master
+        self.players = [master]
+        self.logger = self.server.logger
+        self.logger.info("%s Create a new room with id %s"%(self.master.nick, self.id))
+    
+    def __repr__(self):
+        return "Room %s <%s>,%s"%(self.id,self.master, self.players[1:])
+        
+    def run(self):
+        self.logger.debug("ThreadRoom %s started.",self.ident)
+        while True:
+            for player in self.players:
+                player.send("GIVE ME YOUR NAME !")
+            time.sleep(5)
 
 
 class Server:
