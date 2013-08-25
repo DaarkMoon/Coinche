@@ -9,6 +9,7 @@ import logging
 import logging.config
 import time
 
+from deck import *
 class ThreadClient(threading.Thread): 
     '''
         On créer un thread client en dérivation d'un objet thread
@@ -146,7 +147,7 @@ class ThreadClient(threading.Thread):
             for th in self.server.threads.values():
                 s += " "*4+ repr(th) + "\n"
             s += "  ROOM :\n"    
-            for th in self.server.threads.values():
+            for th in self.server.rooms.values():
                 s += " "*4+ repr(th) + "\n"
             return s
         elif command == "JOIN":
@@ -168,6 +169,9 @@ class ThreadClient(threading.Thread):
             return "ERROR UKW_CMD %s"%(command)
         return "ERROR SERVER RETURN NOTHING"
 
+    def choose_card(self, cardlist):
+        self.send("CHOOSE %s"%(cardlist))
+        return self.recv()
         
 class ThreadRoom(threading.Thread): 
     '''
@@ -209,9 +213,12 @@ class ThreadRoom(threading.Thread):
             Le code actuel n'est là qu'à des fins de test
         """
         self.logger.debug("ThreadRoom %s started.",self.ident)
+        D = Deck()
+        D.shuffle()
+        card_list = D.distribute_deck()[0]
         while True:
             for player in self.players:
-                player.send("GIVE ME YOUR NAME !")
+                print player.choose_card(card_list)
             time.sleep(5)
 
 
