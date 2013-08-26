@@ -9,6 +9,7 @@ import logging
 import logging.config
 import time
 
+
 class ThreadClient(threading.Thread): 
     '''
         On créer un thread client en dérivation d'un objet thread
@@ -42,7 +43,7 @@ class ThreadClient(threading.Thread):
             Detailled representation of ThreadClient
             must be improve to respect philosophy of __repr__
         """
-        return "Thread %s [%s:%s] <%s>"%(self.ident,self.adresse[0], self.adresse[1],self.nick)
+        return "Thread %s [%s:%s] <%s> in room %s"%(self.ident,self.adresse[0], self.adresse[1],self.nick,self.room.id)
         
     def __str__(self):
         """ Ligth representation of ThreadClient """
@@ -66,7 +67,7 @@ class ThreadClient(threading.Thread):
             self.connection.send(data+'\r\n')       # on ajoute "\r\n" pour signifier la fin des données
             self.logger.debug("Command send to %s : %s"%(self,data))
         except socket.error, err:
-            self.disconect_on_error()   # En cas d'erreur on deconecte le client
+            self.disconect_on_error(err)   # En cas d'erreur on deconecte le client
 
     def disconect_on_error(self,err):
         """ Deconection propre d'un client sur une erreur """
@@ -82,8 +83,8 @@ class ThreadClient(threading.Thread):
                 buff += self.connection.recv(1) # On lit octet par octet pour éviter d'avoir 2 commande à la suite (surement pas optimal)
                 if buff.endswith('\r\n'):       # le message finnit toujours avec '\r\n'
                     break
-            except socket.error:
-                self.disconect_on_error()
+            except socket.error,err:
+                self.disconect_on_error(err)
         msg = buff[:-2] # msg sans le '\r\n' signifant la fin
         self.logger.debug("Command receive from %s : %s"%(self,msg))
         return msg
@@ -122,14 +123,14 @@ class ThreadClient(threading.Thread):
         elif command == "HELP":
             # faire un help file
             return "NO HELP WRITEN"
-        elif self.nick == None:
-            return "ERROR No Nick, No Command\nType \"NICK your_nick\" to set your nick"
         elif command == "END":
             self.send("END")
             self.connection.close()      # couper la connection côté serveur
             del self.server.threads[self.ident]        # supprimer son entrée dans le dictionnaire 
             self.logger.info("Client (%s:%s) disconect"%(self.adresse[0], self.adresse[1]))
             sys.exit()
+        elif self.nick == None:
+            return "ERROR No Nick, No Command\nType \"NICK your_nick\" to set your nick"
         elif command == "CHAT":
             for th in self.server.threads.values():
                 if th != self:
@@ -146,16 +147,16 @@ class ThreadClient(threading.Thread):
             for th in self.server.threads.values():
                 s += " "*4+ repr(th) + "\n"
             s += "  ROOM :\n"    
-            for th in self.server.threads.values():
+            for th in self.server.rooms.values():
                 s += " "*4+ repr(th) + "\n"
             return s
         elif command == "JOIN":
             if arg not in self.server.rooms:
-                self.room = ThreadRoom(arg,self)
+                self.room = Room(arg,self)
                 self.server.rooms[arg] = self.room
-                self.room.start()
             else:
                 self.server.rooms[arg].players.append(self)
+                self.room = self.server.rooms[arg]
             return "OK"
         elif command == "QUIT":
             if self.room == None:
@@ -164,12 +165,22 @@ class ThreadClient(threading.Thread):
                 self.room.players.remove(self)
                 self.room = None
                 return "OK"
+        elif command == "GET_STATE":
+            if self.room == None:
+                return "ERROR NOT IN ROOM"
+            else:
+                return self.room.get_state(self)
+        elif command == "PLAY":
+            if self.room == None:
+                return "ERROR NOT IN ROOM"
+            else:
+                self.room.play(arg,self)  
+                return "OK"          
         else:
             return "ERROR UKW_CMD %s"%(command)
         return "ERROR SERVER RETURN NOTHING"
 
-        
-class ThreadRoom(threading.Thread): 
+class Room():
     '''
         On créer un thread rooom en dérivation d'un objet thread
         
@@ -188,31 +199,45 @@ class ThreadRoom(threading.Thread):
                 id      : id de la chambre (type int)
                 master  : maîtrede la chambre (thread client)
         """
-        threading.Thread.__init__(self) # on charge la classe Thread pour l'étendre au lieu de l'écraser
-        self.server = master.server
         self.id = id
         self.master = master
         self.players = [master]
+        self.server = self.master.server
         self.logger = self.server.logger
         self.logger.info("%s Create a new room with id %s"%(self.master.nick, self.id))
-    
+        self.state = "CONFIG"
+        self.annonce = None
+        self.wait_player = 0
+        
     def __repr__(self):
         """
             Représentation de la room par son id, et la liste des joueurs
             le maitre de la room est indiqué par <>
         """
-        return "Room %s <%s> %s"%(self.id,self.master, self.players[1:])
+        ps = ""
+        for p in self.players[1:]:
+            ps += ", "+p.nick
+        return "Room %s (%s) <%s>%s "%(self.id,self.state,self.master.nick, ps)
         
-    def run(self):
-        """
-            Boucle principale de la room.
-            Le code actuel n'est là qu'à des fins de test
-        """
-        self.logger.debug("ThreadRoom %s started.",self.ident)
-        while True:
-            for player in self.players:
-                player.send("GIVE ME YOUR NAME !")
-            time.sleep(5)
+    def get_state(self, player):
+        if self.state=="CONFIG" and player == self.master:
+                return "SET CONFIG OR START"
+        elif self.state=="WAIT_ANNONCE" and self.players[self.wait_player] == player:
+                return "SET ANNONCE %s"%(self.annonce)
+        else:
+            return "WAIT (%s)"%self.state
+            
+    def play(self, arg, player):
+        if self.state == "CONFIG":
+            if arg == "START":
+                self.state = "WAIT_ANNONCE"
+                self.players[self.wait_player] = self.master
+        if self.state == "WAIT_ANNONCE":
+            self.annonce = arg
+            self.wait_player = (self.wait_player)%len(self.players)
+            
+            
+        
 
 
 class Server:

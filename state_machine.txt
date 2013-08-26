@@ -1,0 +1,20 @@
+ 1. On commence dans l'état CONFIG, qui permet au mettre de la chambre de régler les paramètres (mode coupe, points max, que faire en cas de déco)
+ 2. Une fois que le maitre de la chambre à finnit on passe dans l'état COUPE/DISTRIBUE, le deck se mélange (si besoin) si non a réglé la coupe en auto passe a l'étape 5
+ 3. on se mets en mode WAIT_COUPE, ou l'on attend la réponse du joueur
+ 4. Une fois la réponse obtenue on retourne dans l'état COUPE/DISTRIBUE, si la réponse est valide on passe à l'étape 5, sinon retour à l'étape 3
+ 5. On distribue le jeux, on passe par l'état GET_ANNONCE pour aller directement à l'état WAIT_ANNOCE
+ 6. On attend l'annoce du joueur, une fois celle si reçus on passe dans l'état GET_ANNONCE
+ 7. On vérifie que l'ANNONCE est valide si c'est pas valide on retourne à l'étape 6
+ 8. Tant que l'on a pas 3 annoce "Passe" de suite on retourne à l'étape 6 (mais on attend l'annonce d'un autre joueur. Quand on à 3 "Passe" on va à l'étape 9
+ 9. On démarre le jeu en passant par GET_CARD pour Aller directement à WAIT_CARD
+10. On attend la carte du joueur, une fois celle si reçus on passe dans l'état GET_CARD
+11. On vérifie que la carte est valide si c'est pas valide on retourne à l'étape 10
+12. Tant que l'on a pas 4 Carte de jouer on retourne à l'étape 10 (mais on attend la carte d'un autre joueur. Quand on a 4 carte on va à l'étape 13
+13. On passe à l'étape GET_TURN_WINNER qui calcule le gagnant du tour et on retourne à l'état GET_CARD et on reprend à l'étape 9. Quand 8 tour sont joué on peut passer à l'étape 14
+14. On passe à l'étape GET_ROUND_WINNER qui calcule le gagnant
+15. Dans l'état ADD_POINTS on ajoute les points, si c'est inférieur au max définit on retourne à l'étape 2, sinon on va à l'étape 16
+16. Dans l'état END_GAME on affiche les gagnants, on décide si on veut continuer, dans ce cas on passe à l'étape 1 pour éventuellement modifier les réglage, sinon c'est finnit
+
+Rmq 1 : On peut fusioner END_GAME, ADD_POINTS et GET_ROUND_WINNER en un seul état mais j'ai découper pour la compréhension
+Rmq 2 : On peut séparer la coupe de la distribution et ajouter un etat WAIT_SCHEME pour pouvoir demander le schéma de distribution
+Rmq 3 : Il y a plusieur passage assez moche ou on fait que traversé un état mais c'est ce qui permet de définir qu'el joeur on va attendre en premier
